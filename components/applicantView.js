@@ -4,8 +4,8 @@ import useSWR, { mutate } from "swr";
 import { List, Spin, Card, Tag, Row, Col, Rate } from "antd";
 import ViewApplicantModal from "./viewApplicantModal";
 
-export default function ApplicantView(props) {
-  const { data, error } = useSWR(`/api/jobs/${props.data}`, async function (args) {
+export default function ApplicantView({ data: jobData, pipeline }) {
+  const { data, error } = useSWR(`/api/jobs/${jobData}`, async function (args) {
     const res = await fetch(args);
     return res.json();
   });
@@ -45,10 +45,10 @@ export default function ApplicantView(props) {
         visible={modalVisible}
         data={applicantData}
         close={() => {
-          mutate(`/api/jobs/${props.data}`);
+          mutate(`/api/jobs/${jobData}`);
           setModalVisible(false);
         }}
-        pipeline={props.pipeline}
+        pipeline={pipeline}
       />
       <List
         split={false}
