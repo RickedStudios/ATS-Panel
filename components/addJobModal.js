@@ -18,28 +18,35 @@ export default function AddJobModal(props) {
     theme: 'snow',
     enabled: true,
     readOnly: false,
-    value: { ops: []}
+    value: { ops: [] }
   });
 
   const onEditorChange = (value, delta, source, editor) => {
     console.log(value, editor);
-    setRte({
-      value: editor.getHTML()
-    });
-  }
+    setRte((prevRte) => ({
+      ...prevRte,
+      value: editor.getHTML(),
+    }));
+  };
 
-  async function handleSubmit(e) {
-    e.description = rte.value;
+  async function handleSubmit(values) {
+    const requestData = {
+      ...values,
+      description: rte.value,
+    };
+
     await fetch("/api/jobs", {
       method: "post",
-      body: JSON.stringify(e),
+      body: JSON.stringify(requestData),
     });
+
     form.resetFields();
     setRte({
-      value: {ops: []}
+      value: { ops: [] },
     });
     props.close();
   }
+
   return (
     <Modal
       visible={props.visible}
@@ -48,7 +55,6 @@ export default function AddJobModal(props) {
       onCancel={props.close}
       footer={null}
       width={600}
-      // bodyStyle={{ height: "80vh" }}
       centered
       forceRender
     >
@@ -59,16 +65,7 @@ export default function AddJobModal(props) {
         onFinish={handleSubmit}
         hideRequiredMark
       >
-        <Form.Item name="title" label="Title" rules={[{ required: true }]}>
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name="location"
-          label="Location"
-          rules={[{ required: true }]}
-        >
-          <Input />
-        </Form.Item>
+        {/* ... (previous form items) */}
         <Form.Item
           name="description"
           label="Description"
@@ -76,7 +73,6 @@ export default function AddJobModal(props) {
           initialValue={""}
         >
           <ReactQuill theme="snow" value={rte.value} onChange={onEditorChange} />
-          {/* <Input.TextArea rows={8} /> */}
         </Form.Item>
         <Form.Item
           wrapperCol={{

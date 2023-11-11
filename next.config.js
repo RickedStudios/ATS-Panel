@@ -6,6 +6,7 @@ const plugins = [
     withLess,
     {
       lessLoaderOptions: {
+        // Add any Less loader options you need here
       },
     },
   ],

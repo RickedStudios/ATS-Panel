@@ -3,7 +3,7 @@ import { Modal, Button, Form, Input } from "antd";
 import dynamic from "next/dynamic";
 
 const ReactQuill = dynamic(() => import("react-quill"), {
-  ssr: false
+  ssr: false,
 });
 
 const layout = {
@@ -13,45 +13,56 @@ const layout = {
 
 export default function EditJobModal(props) {
   const [form] = Form.useForm();
-  // let quillRef = useRef();
-
   const [rte, setRte] = useState({
-    theme: 'snow',
+    theme: "snow",
     enabled: true,
     readOnly: false,
-    value: { ops: []}
+    value: { ops: [] },
   });
 
   const onEditorChange = (value, delta, source, editor) => {
-    console.log(value, editor);
     setRte({
-      value: editor.getHTML()
+      value: editor.getHTML(),
     });
-  }
+  };
 
   useEffect(() => {
     form.resetFields();
     setRte({
-      value: (props.data.description)
-    })
-  }, [props.data]);
-
-  async function handleSubmit(e) {
-    e.id = props.data._id;
-    e.description = rte.value;
-    await fetch("/api/jobs", {
-      method: "put",
-      body: JSON.stringify(e),
+      value: props.data.description,
     });
-    props.close();
+  }, [props.data, form]);
+
+  async function handleSubmit(values) {
+    const payload = {
+      id: props.data._id,
+      description: rte.value,
+      ...values,
+    };
+
+    try {
+      await fetch("/api/jobs", {
+        method: "put",
+        body: JSON.stringify(payload),
+      });
+
+      props.close();
+    } catch (error) {
+      console.error("Error submitting data:", error);
+    }
   }
 
   async function deleteListing() {
-    await fetch("/api/jobs", {
-      method: "delete",
-      body: JSON.stringify(props.data._id),
-    });
-    props.close();
+    try {
+      await fetch("/api/jobs", {
+        method: "delete",
+        body: JSON.stringify(props.data._id),
+      });
+
+      props.close();
+    } catch (error) {
+      console.error("Error deleting listing:", error);
+    }
   }
 
   return (
@@ -75,7 +86,7 @@ export default function EditJobModal(props) {
         <Form.Item
           name="title"
           label="Title"
-          rules={[{ required: true }]}
+          rules={[{ required: true, message: "Title is required" }]}
           initialValue={props.data.title}
         >
           <Input />
@@ -83,7 +94,7 @@ export default function EditJobModal(props) {
         <Form.Item
           name="location"
           label="Location"
-          rules={[{ required: true }]}
+          rules={[{ required: true, message: "Location is required" }]}
           initialValue={props.data.location}
         >
           <Input />
@@ -91,38 +102,26 @@ export default function EditJobModal(props) {
         <Form.Item
           name="description"
           label="Description"
-          rules={[{ required: true }]}
+          rules={[{ required: true, message: "Description is required" }]}
           initialValue={props.data.description}
         >
           <ReactQuill theme="snow" value={rte.value} onChange={onEditorChange} />
         </Form.Item>
 
-      
         <Form.Item
           wrapperCol={{
             ...layout.wrapperCol,
             offset: 4,
           }}
         >
-          <Button
-            type="primary"
-            htmlType="submit"
-            style={{ marginRight: "8px" }}
-          >
+          <Button type="primary" htmlType="submit" style={{ marginRight: "8px" }}>
             Save
           </Button>
-          <Button
-            type="default"
-            htmlType="button"
-            onClick={deleteListing}
-            danger
-          >
+          <Button type="default" htmlType="button" onClick={deleteListing} danger>
             Delete
           </Button>
         </Form.Item>
       </Form>
-
-      
     </Modal>
   );
 }

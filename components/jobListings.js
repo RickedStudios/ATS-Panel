@@ -29,33 +29,45 @@ export default function JobListings() {
     const res = await fetch(args);
     return res.json();
   });
-  if (error) return <div>failed to load</div>;
-  if (!data)
+
+  if (error) {
+    console.error("Failed to load job listings:", error);
+    return <div>Failed to load</div>;
+  }
+
+  if (!data) {
     return (
       <div className={homeStyle.container}>
         <Spin size="large" />
       </div>
     );
+  }
+
+  const handleNewJobModalClose = () => {
+    mutate("/api/jobs");
+    setNewJobModalVisible(false);
+  };
+
+  const handleEditJobModalClose = () => {
+    mutate("/api/jobs");
+    setEditJobModalVisible(false);
+  };
+
+  const handleEditListingClick = (item) => {
+    setSelectedListing(item);
+    setEditJobModalVisible(true);
+  };
 
   return (
     <Layout
       className={styles.siteLayoutBackground}
       style={{ paddingTop: 10, minHeight: "100vh" }}
     >
-      <AddJobModal
-        visible={newJobModalVisible}
-        close={() => {
-          mutate("/api/jobs");
-          setNewJobModalVisible(false);
-        }}
-      />
+      <AddJobModal visible={newJobModalVisible} close={handleNewJobModalClose} />
       <EditJobModal
         data={selectedListing}
         visible={editJobModalVisible}
-        close={() => {
-          mutate("/api/jobs");
-          setEditJobModalVisible(false);
-        }}
+        close={handleEditJobModalClose}
       />
       <Content
         style={{
@@ -74,9 +86,7 @@ export default function JobListings() {
               type="primary"
               icon={<PlusOutlined />}
               size="large"
-              onClick={() => {
-                setNewJobModalVisible(true);
-              }}
+              onClick={() => setNewJobModalVisible(true)}
             >
               Add Listing
             </Button>
@@ -96,14 +106,7 @@ export default function JobListings() {
           dataSource={data}
           renderItem={(item) => (
             <List.Item>
-              <Card
-                hoverable
-                onClick={() => {
-                  setSelectedListing(item);
-                  setEditJobModalVisible(true);
-                }}
-                title={item.title}
-              >
+              <Card hoverable onClick={() => handleEditListingClick(item)} title={item.title}>
                 {item.location}
               </Card>
             </List.Item>

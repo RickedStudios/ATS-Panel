@@ -5,50 +5,40 @@ import { List, Spin, Card, Tag, Row, Col, Rate } from "antd";
 import ViewApplicantModal from "./viewApplicantModal";
 
 export default function ApplicantView(props) {
-  const { data, error } = useSWR(`/api/jobs/${props.data}`, async function (
-    args
-  ) {
+  const { data, error } = useSWR(`/api/jobs/${props.data}`, async function (args) {
     const res = await fetch(args);
     return res.json();
   });
+
   const [modalVisible, setModalVisible] = useState(false);
   const [applicantData, setApplicantData] = useState({});
-  function setColor(stage) {
-    let color;
+
+  const setColor = (stage) => {
     switch (stage) {
       case "Applied":
-        color = "magenta";
-        break;
+        return "magenta";
       case "Interview":
-        color = "gold";
-        break;
+        return "gold";
       case "Offer":
-        color = "green";
-        break;
+        return "green";
       default:
-        color = "blue";
-        break;
+        return "blue";
     }
-    return color;
-  }
+  };
 
   if (error) {
-    console.log(error);
-    return `<div> Error </div>`
+    console.error(error);
+    return <div>Error</div>;
   }
-  if (!data)
+
+  if (!data) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          height: "100%",
-          alignItems: "center",
-        }}
-      >
+      <div style={{ display: "flex", justifyContent: "center", height: "100%", alignItems: "center" }}>
         <Spin size="large" />
       </div>
     );
+  }
+
   return (
     <div>
       <ViewApplicantModal
@@ -63,7 +53,7 @@ export default function ApplicantView(props) {
       <List
         split={false}
         itemLayout="horizontal"
-        pagination={{position: 'bottom', align: 'end'}}
+        pagination={{ position: 'bottom', align: 'end' }}
         dataSource={data}
         renderItem={(item) => (
           <List.Item>
@@ -86,10 +76,7 @@ export default function ApplicantView(props) {
                 <Col span={4} style={{ display: "flex", alignItems: "center" }}>
                   <Rate value={item.rating} disabled />
                 </Col>
-                <Col
-                  span={12}
-                  style={{ display: "flex", alignItems: "center" }}
-                >
+                <Col span={12} style={{ display: "flex", alignItems: "center" }}>
                   {item.introduction}
                 </Col>
               </Row>

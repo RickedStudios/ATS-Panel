@@ -1,14 +1,5 @@
 import React, { useState } from "react";
-import {
-  Layout,
-  Menu,
-  Typography,
-  Divider,
-  Spin,
-  Row,
-  Col,
-  Button,
-} from "antd";
+import { Layout, Menu, Typography, Divider, Spin, Row, Col, Button } from "antd";
 import fetch from "isomorphic-unfetch";
 import useSWR from "swr";
 import styles from "../styles/ATS.module.css";
@@ -21,32 +12,39 @@ const { Content, Sider } = Layout;
 const { Title } = Typography;
 
 function Applicants(props) {
-  const [
-    insertApplicantModalVisible,
-    setInsertApplicantModalVisible,
-  ] = useState(false);
+  const [insertApplicantModalVisible, setInsertApplicantModalVisible] = useState(false);
   const [selectedListing, setSelectedListing] = useState(props.data.initialId);
-  const { data, error } = useSWR("/api/jobs", async function (args) {
+  const { data, error } = useSWR("/api/jobs", async (args) => {
     const res = await fetch(args);
     return res.json();
   });
-  if (error) return <div>failed to load</div>;
-  if (!data)
+
+  if (error) {
+    console.error("Failed to load:", error);
+    return <div>Failed to load</div>;
+  }
+
+  if (!data) {
     return (
       <div className={homeStyle.container}>
         <Spin size="large" />
       </div>
     );
+  }
+
+  const handleManualInsertClick = () => {
+    setInsertApplicantModalVisible(true);
+  };
+
+  const handleMenuSelect = (e) => {
+    setSelectedListing(e.item.props.data);
+  };
+
   return (
-    <Layout
-      className={styles.siteLayoutBackground}
-      style={{ paddingTop: 10, minHeight: "100vh" }}
-    >
+    <Layout className={styles.siteLayoutBackground} style={{ paddingTop: 10, minHeight: "100vh" }}>
       <InsertApplicantModal
         visible={insertApplicantModalVisible}
-        close={() => {
-          setInsertApplicantModalVisible(false);
-        }}
+        close={() => setInsertApplicantModalVisible(false)}
       />
       <Row align="middle" style={{ padding: "0 24px" }}>
         <Col flex="auto">
@@ -59,9 +57,7 @@ function Applicants(props) {
             type="primary"
             icon={<PlusOutlined />}
             size="large"
-            onClick={() => {
-              setInsertApplicantModalVisible(true);
-            }}
+            onClick={handleManualInsertClick}
           >
             Manual Insert
           </Button>
@@ -74,9 +70,7 @@ function Applicants(props) {
             mode="inline"
             defaultSelectedKeys={["0"]}
             style={{ height: "100%" }}
-            onSelect={(e) => {
-              setSelectedListing(e.item.props.data);
-            }}
+            onSelect={handleMenuSelect}
           >
             {data.map((job, i) => (
               <Menu.Item key={i.toString()} data={job._id}>
@@ -85,15 +79,8 @@ function Applicants(props) {
             ))}
           </Menu>
         </Sider>
-        <Content
-          style={{
-            padding: "0 24px",
-          }}
-        >
-          <ApplicantView
-            data={selectedListing}
-            pipeline={props.data.pipeline}
-          />
+        <Content style={{ padding: "0 24px" }}>
+          <ApplicantView data={selectedListing} pipeline={props.data.pipeline} />
         </Content>
       </Layout>
     </Layout>
