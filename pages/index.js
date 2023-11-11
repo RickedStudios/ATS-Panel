@@ -29,7 +29,7 @@ export default function Home() {
             </Col>
             <Col flex="80px">
               <Link href="/login">
-                <span className={listingStyles.button}> Sign In </span>
+                Sign In
               </Link>
             </Col>
           </Row>
