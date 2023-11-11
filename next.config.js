@@ -12,7 +12,7 @@ const plugins = [
   ],
 ];
 
-module.exports = withPlugins(plugins, {
+const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   amp: {
@@ -29,4 +29,6 @@ module.exports = withPlugins(plugins, {
     // Define your images configuration here
     loader: 'default',
   },
-});
+};
+
+module.exports = withPlugins(plugins, nextConfig);
