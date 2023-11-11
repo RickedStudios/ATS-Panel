@@ -28,7 +28,7 @@ export default function ApplicantView({ data: jobData, pipeline }) {
 
   if (error) {
     console.error(error);
-    return <div>Error</div>;
+    return "Eroorsssssss"
   }
 
   if (!data) {
